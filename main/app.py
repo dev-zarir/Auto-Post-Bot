@@ -2,7 +2,6 @@ from helper import FB_Scrapper, post_fb, check_acc_ie
 from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from time import sleep
-import schedule
 from threading import Thread
 
 __version__=2.8
@@ -94,12 +93,15 @@ def check_delete_required():
 		write_log(f'Error at Deleteing Post: {str(e)}')
 
 def run_schedule():
+	sleep(60)
+	loop=0
 	while True:
-		schedule.run_pending()
-		sleep(5)
+		loop+=1
+		fetch_post_and_publish()
+		if loop % 2 == 0:
+			check_delete_required()
+		sleep(60*15)
 
-schedule.every(15).minutes.do(fetch_post_and_publish)
-schedule.every(30).minutes.do(check_delete_required)
 
 t=Thread(target=run_schedule)
 t.setDaemon(True)
