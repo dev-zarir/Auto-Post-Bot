@@ -5,7 +5,7 @@ from time import sleep
 import schedule
 from threading import Thread
 
-__version__=2.3
+__version__=2.4
 
 amount_of_post_each_page=5
 
@@ -73,7 +73,9 @@ def fetch_post_and_publish():
 					if not Posts.query.filter_by(content=post.content):
 						db.session.add(Posts(content=post.content))
 						db.session.commit()
-						post_fb(post.content)
+						fb_resp=post_fb(post.content)
+						if not fb_resp:
+							write_log('Error at posting on facebook: The function retuned False')
 			except Exception as e:
 				write_log(f'Error at adding row to database: {str(e)}')
 				continue
