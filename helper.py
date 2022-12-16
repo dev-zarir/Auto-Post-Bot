@@ -3,7 +3,9 @@ from urllib.parse import quote_plus
 import requests
 import re
 
-acc_tk='EAAMn925dpngBAPsRJLMSuBG4uNsQzeW5hitQbYtnN4JSLMOhbrmPg7Nsv8rsGbyOJ22N9YDJxNtpghiSPC7yAGsPeKaYXSCwdXBrE5JWlcV06ZC2wOIxfZBG2e7Np5PT3KGfazZClr9ERW2afZCwTm2jhERlSssTnalZBjDlZCLUlE4f0S5ZAVK'
+acc_tk='EAAMn925dpngBAH1EllZAgG7Sbp6WyjrBjUSpdvbGzMmI06fecV58djkRyvo00f1mWZBqWJVQjLQqBI2rss2P8gKwfdXHYvWRO4Xf5G73IMJmiGUfLujnHG8S9keM3wkjy7SgHEiexwiZBhqCIE5x79gPblePwEQ8HF8Xa5LRIZBUfAwqZAFPn'
+
+# 14 Feb Expire
 
 def check_if_valid():
 	resp=requests.get(f'https://graph.facebook.com/v15.0/debug_token?input_token={acc_tk}&access_token={acc_tk}')
@@ -13,7 +15,7 @@ def check_if_valid():
 		return False
 
 def post_fb(message):
-	resp=requests.post(f"https://graph.facebook.com/v15.0/me/feed?message={quote_plus(message)}&access_token={acc_tk}")
+	resp=requests.post(f"https://graph.facebook.com/v15.0/113023048137080/feed?message={quote_plus(message)}&access_token={acc_tk}")
 	if resp.status_code==200:
 		return True
 	else:

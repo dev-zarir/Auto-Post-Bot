@@ -5,7 +5,7 @@ from time import sleep
 import schedule
 from threading import Thread
 
-__version__=2.4
+__version__=2.5
 
 amount_of_post_each_page=5
 
