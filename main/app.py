@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=2.9
+__version__=3.0
 
 amount_of_post_each_page=5
 
@@ -60,38 +60,24 @@ def write_log(msg:str):
 		log.close()
 
 def fetch_post_and_publish():
-	try:
-		posts=[]
-		for page_id in page_ids:
-			scrapper=FB_Scrapper(page_id, amount_of_post_each_page, acc_ie)
-			posts+=scrapper.posts
-		for post in posts:
-			try:
-				with app.app_context():
-					if not Posts.query.filter_by(content=post.content):
-						db.session.add(Posts(content=post.content))
-						db.session.commit()
-						try:
-							post_fb(post.content, acc_pg)
-						except Exception as e:
-							write_log(f'Error at posting on facebook: {str(e)}')
-			except Exception as e:
-				write_log(f'Error at adding row to database: {str(e)}')
-				continue
-	except Exception as e:
-		write_log(f'Error at Scrapping Post: {str(e)}')
-		pass
+	posts=[]
+	for page_id in page_ids:
+		scrapper=FB_Scrapper(page_id, amount_of_post_each_page, acc_ie)
+		posts+=scrapper.posts
+	for post in posts:
+		with app.app_context():
+			if not Posts.query.filter_by(content=post.content):
+				db.session.add(Posts(content=post.content))
+				db.session.commit()
+				post_fb(post.content, acc_pg)
 
 def check_delete_required():
-	try:
-		with app.app_context():
-			all_posts=Posts.query.all()
-			if len(all_posts)>=10000:
-				for current_post in all_posts[:-1000]:
-					db.session.delete(current_post)
-					db.session.commit()
-	except Exception as e:
-		write_log(f'Error at Deleteing Post: {str(e)}')
+	with app.app_context():
+		all_posts=Posts.query.all()
+		if len(all_posts)>=10000:
+			for current_post in all_posts[:-1000]:
+				db.session.delete(current_post)
+				db.session.commit()
 
 def run_schedule():
 	sleep(60)
