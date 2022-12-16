@@ -1,7 +1,0 @@
-Flask
-Flask-SQLAlchemy
-psycopg2
-requests
-requests-html
-schedule
-waitress
