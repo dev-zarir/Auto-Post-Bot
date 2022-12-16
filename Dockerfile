@@ -12,4 +12,4 @@ RUN apt-get update
 RUN apt --fix-broken install
 RUN apt-get install google-chrome-stable -y
 
-CMD ["wairess-serve", "app:app"]
+CMD ["python", "app.py"]
