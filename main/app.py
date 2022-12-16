@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=2.8
+__version__=2.9
 
 amount_of_post_each_page=5
 
@@ -35,6 +35,7 @@ class Posts(db.Model):
 
 @app.route('/')
 def home():
+	fetch_post_and_publish()
 	acc_id=check_acc_ie(acc_ie)
 	return render_template_string(f"""
 <h2>Version: {__version__}</h2>
