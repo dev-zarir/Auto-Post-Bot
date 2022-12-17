@@ -4,6 +4,8 @@ WORKDIR /main
 
 ADD ./main/* .
 
+RUN yum install gcc -y
+
 RUN yum install firefox -y
 
 RUN yum install python3 -y
