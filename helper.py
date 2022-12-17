@@ -1,61 +1,25 @@
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
 from requests_html import HTMLSession, HTML
-from selenium.webdriver.common.by import By
 from urllib.parse import quote_plus
-from seleniumwire import webdriver
 import requests
 import re
 
-def post_fb(content, cookie):
-	def interceptor(request):
-		if 'facebook.com' in request.url:
-			request.headers['Cookie'] = cookie
+acc_tk='EAAMn925dpngBAOrxmcJnXD3og0m6beNYr071g6NHVUDXz3JTsgO3U5WTRZAUVIJqJNhmpxTLGoKL7b1XUDDIuTOTHwo2YZBxm7xWXjiKVnk4sZBQ7kWCjPotdLd4nVhOHjvFLUTcfQkWgqLGW54B1vtyfi0p4hMJv43tWncH6hYoTzgNG5o'
 
-	options=webdriver.FirefoxOptions()
-	options.add_argument("--log-level=3")
-	options.add_argument("--headless")
-	options.add_argument("--disable-dev-shm-usage")
-	options.add_argument("--no-sandbox")
+# 14 Feb Expire
 
-	driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
-	driver.set_window_size(400,700)
-	driver.request_interceptor = interceptor
-	# Open Page
-	driver.get('https://facebook.com/113023048137080')
-	# Click on "What's on your mind"
-	find_until_clicklable(driver, By.XPATH, "//span[contains(text(),\"What's on your mind?\")]").click()
-	# Find Input Field
-	input=find_until_clicklable(driver, By.CSS_SELECTOR, "div[aria-label=\"What's on your mind?\"]")
-	# Click on Input Field
-	input.click()
-	# Type in Input Field
-	action=ActionChains(driver)
-	for c in content:
-		action.send_keys(c)
-		action.perform()
-	# Click on Post Button
-	find_until_clicklable(driver, By.CSS_SELECTOR, "div[aria-label=Post]").click()
+def check_if_valid():
+	resp=requests.get(f'https://graph.facebook.com/v15.0/debug_token?input_token={acc_tk}&access_token={acc_tk}')
+	try:
+		return resp.json()['data']['is_valid']
+	except:
+		return False
 
-	driver.implicitly_wait(5)
-	disappared=False
-	
-	while not disappared:
-		try:
-			driver.find_element(By.XPATH, "//*[contains(text(), 'Posting')]")
-		except:
-			disappared=True
-
-	driver.quit()
-
-def find_until_located(driver,find_by,name,timeout=60):
-	return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((find_by, name)))
-
-def find_until_clicklable(driver,find_by,name,timeout=60):
-	return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((find_by, name)))
+def post_fb(message):
+	resp=requests.post(f"https://graph.facebook.com/v15.0/113023048137080/feed?message={quote_plus(message)}&access_token={acc_tk}")
+	if resp.status_code==200:
+		return True
+	else:
+		return False
 
 class FB_Scrapper:
 	def __init__(self, page_id:str, post_amount:int, cookie:str):

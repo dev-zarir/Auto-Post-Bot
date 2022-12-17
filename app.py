@@ -1,15 +1,10 @@
-text=open('/usr/local/lib/python3.6/site-packages/seleniumwire/webdriver.py').read()
-with open('/usr/local/lib/python3.6/site-packages/seleniumwire/webdriver.py', 'w') as file:
-	file.write(text.replace('from selenium.webdriver import EdgeOptions', 'from selenium.webdriver import ChromeOptions as EdgeOptions'))
-	file.close()
-
-from helper import FB_Scrapper, post_fb, check_acc_ie
+from helper import FB_Scrapper, post_fb, check_if_valid, check_acc_ie
 from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=3.5
+__version__=3.8
 
 amount_of_post_each_page=5
 
@@ -26,12 +21,10 @@ page_ids=[
 ]
 
 acc_ie='datr=I-OXY2hRUMNU0E1dAZskV8QM; sb=I-OXY6nujoTuO6pyN4G_171u; m_pixel_ratio=1.84375; fr=0emoGyVJMegntNkin.AWUyCee8uv5hhCFFKlbQ12LyFXE.Bjl-Mj.ut.AAA.0.0.Bjl-OS.AWUhAyo-6ic; c_user=100079084416483; xs=29%3AndYbm8KkI70VWg%3A2%3A1670898578%3A-1%3A7642; m_page_voice=100079084416483; wd=391x752; locale=en_US; fbl_st=100625307%3BT%3A27848309; fbl_cs=AhD%2BBtjEWp4wLlaN5IxgmLxdGGpSV2hSYUxSbUU2SXZLbWMybkl5MTNSdA; fbl_ci=841898967085320; vpd=v1%3B752x391x1.84375'
-acc_pg='sb=9qyWY37zI4134gBc62sK7xXV; fr=0k9fPFD3GSGtEYNs0.AWV9oc5cBMn1NqiUQHClCnU8zPA.BjnAuh.k3.AAA.0.0.BjnBOd.AWXiB4hGjdw; wd=1366x365; datr=96yWY5fJbK2BcA2NkfmU8Avn; c_user=100075924800901; xs=37%3AmdDowsVp2x5aIQ%3A2%3A1670819087%3A-1%3A5149%3A%3AAcXC7lwa-B0Tr0h4N7QEeJMOiOYPq5cHSixI7povSmA; dpr=1; m_page_voice=100075924800901; m_pixel_ratio=1; usida=eyJ2ZXIiOjEsImlkIjoiQXJteXpwdXd6eWpiNiIsInRpbWUiOjE2NzExNzMwOTd9; i_user=100083542359206'
 
 app=Flask(__name__)
 app.config['SECRET_KEY']='uwrguyvw4buteuf4gbyugt'
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://otnkpdnm:e33_gRZAfzmXc73KHUG5BWeuEX19smt2@satao.db.elephantsql.com/otnkpdnm'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 
 db=SQLAlchemy(app)
 
@@ -41,10 +34,13 @@ class Posts(db.Model):
 
 @app.route('/')
 def home():
+	is_valid=check_if_valid()
 	acc_id=check_acc_ie(acc_ie)
 	return render_template_string(f"""
 <h2>Version: {__version__}</h2>
+<h2>Token Valid: {is_valid}</h2>
 <h2>Acc Valid: {acc_id=='100075924800901'}</h2>
+<h2>Acc Checked ID: {acc_id}</h2>
 <h3><a href='/log'>View Log</a></h3>
 """)
 
@@ -65,16 +61,26 @@ def write_log(msg:str):
 		log.close()
 
 def fetch_post_and_publish():
-	posts=[]
-	for page_id in page_ids:
-		scrapper=FB_Scrapper(page_id, amount_of_post_each_page, acc_ie)
-		posts+=scrapper.posts
-	for post in posts:
-		with app.app_context():
-			if not Posts.query.filter_by(content=post.content).first():
-				db.session.add(Posts(content=post.content))
-				db.session.commit()
-				post_fb(post.content, acc_pg)
+	try:
+		posts=[]
+		for page_id in page_ids:
+			scrapper=FB_Scrapper(page_id, amount_of_post_each_page, acc_ie)
+			posts+=scrapper.posts
+		for post in posts:
+			try:
+				with app.app_context():
+					if not Posts.query.filter_by(content=post.content).first():
+						db.session.add(Posts(content=post.content))
+						db.session.commit()
+						fb_resp=post_fb(post.content)
+						if not fb_resp:
+							write_log('Error at posting on facebook: The function retuned False')
+			except Exception as e:
+				write_log(f'Error at adding row to database: {str(e)}')
+				continue
+	except Exception as e:
+		write_log(f'Error at Scrapping Post: {str(e)}')
+		pass
 
 def check_delete_required():
 	try:
@@ -96,7 +102,6 @@ def run_schedule():
 		if loop % 2 == 0:
 			check_delete_required()
 		sleep(60*15)
-
 
 t=Thread(target=run_schedule)
 t.setDaemon(True)

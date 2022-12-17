@@ -4,6 +4,3 @@ psycopg2
 requests
 requests-html
 waitress
-selenium
-selenium-wire
-webdriver-manager
