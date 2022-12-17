@@ -3,8 +3,9 @@ from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
+import requests
 
-__version__=3.8
+__version__=3.9
 
 amount_of_post_each_page=5
 
@@ -43,6 +44,14 @@ def home():
 <h2>Acc Checked ID: {acc_id}</h2>
 <h3><a href='/log'>View Log</a></h3>
 """)
+
+@app.route('/check/<token>')
+def check_tk(token):
+	resp=requests.get(f'https://graph.facebook.com/v15.0/debug_token?input_token={token}&access_token={token}')
+	try:
+		return str(resp.json()['data']['is_valid'])
+	except:
+		return str(False)
 
 @app.route('/log')
 def show_log():
