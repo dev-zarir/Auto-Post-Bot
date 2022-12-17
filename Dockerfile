@@ -8,7 +8,7 @@ RUN yum install firefox -y
 
 RUN yum install python3 -y
 
-RUN yum install libpq-devel -y
+RUN yum install libpq-dev -y
 
 RUN pip3 install -r requirements.txt
 
