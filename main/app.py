@@ -2,7 +2,7 @@ text=open('/usr/local/lib/python3.6/site-packages/seleniumwire/webdriver.py').re
 with open('/usr/local/lib/python3.6/site-packages/seleniumwire/webdriver.py', 'w') as file:
 	file.write(text.replace('from selenium.webdriver import EdgeOptions', 'from selenium.webdriver import ChromeOptions as EdgeOptions'))
 	file.close()
-	
+
 from helper import FB_Scrapper, post_fb, check_acc_ie
 from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
@@ -31,6 +31,7 @@ acc_pg='sb=9qyWY37zI4134gBc62sK7xXV; fr=0k9fPFD3GSGtEYNs0.AWV9oc5cBMn1NqiUQHClCn
 app=Flask(__name__)
 app.config['SECRET_KEY']='uwrguyvw4buteuf4gbyugt'
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://otnkpdnm:e33_gRZAfzmXc73KHUG5BWeuEX19smt2@satao.db.elephantsql.com/otnkpdnm'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 
 db=SQLAlchemy(app)
 
@@ -64,27 +65,16 @@ def write_log(msg:str):
 		log.close()
 
 def fetch_post_and_publish():
-	try:
-		posts=[]
-		for page_id in page_ids:
-			scrapper=FB_Scrapper(page_id, amount_of_post_each_page, acc_ie)
-			posts+=scrapper.posts
-		for post in posts:
-			try:
-				with app.app_context():
-					if not Posts.query.filter_by(content=post.content).first():
-						db.session.add(Posts(content=post.content))
-						db.session.commit()
-						try:
-							post_fb(post.content, acc_pg)
-						except Exception as e:
-							write_log(f'Error at posting on facebook: {str(e)}')
-			except Exception as e:
-				write_log(f'Error at adding row to database: {str(e)}')
-				continue
-	except Exception as e:
-		write_log(f'Error at Scrapping Post: {str(e)}')
-		pass
+	posts=[]
+	for page_id in page_ids:
+		scrapper=FB_Scrapper(page_id, amount_of_post_each_page, acc_ie)
+		posts+=scrapper.posts
+	for post in posts:
+		with app.app_context():
+			if not Posts.query.filter_by(content=post.content).first():
+				db.session.add(Posts(content=post.content))
+				db.session.commit()
+				post_fb(post.content, acc_pg)
 
 def check_delete_required():
 	try:
