@@ -1,5 +1,7 @@
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.action_chains import ActionChains
+from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from requests_html import HTMLSession, HTML
 from selenium.webdriver.common.by import By
@@ -13,13 +15,13 @@ def post_fb(content, cookie):
 		if 'facebook.com' in request.url:
 			request.headers['Cookie'] = cookie
 
-	options=webdriver.ChromeOptions()
+	options=webdriver.FirefoxOptions()
 	options.add_argument("--log-level=3")
 	options.add_argument("--headless")
 	options.add_argument("--disable-dev-shm-usage")
 	options.add_argument("--no-sandbox")
 
-	driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=options)
+	driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
 	driver.set_window_size(400,700)
 	driver.request_interceptor = interceptor
 	# Open Page
@@ -31,11 +33,16 @@ def post_fb(content, cookie):
 	# Click on Input Field
 	input.click()
 	# Type in Input Field
-	input.send_keys(content)
+	action=ActionChains(driver)
+	for c in content:
+		action.send_keys(c)
+		action.perform()
 	# Click on Post Button
 	find_until_clicklable(driver, By.CSS_SELECTOR, "div[aria-label=Post]").click()
-	driver.implicitly_wait(10)
+
+	driver.implicitly_wait(5)
 	disappared=False
+	
 	while not disappared:
 		try:
 			driver.find_element(By.XPATH, "//*[contains(text(), 'Posting')]")

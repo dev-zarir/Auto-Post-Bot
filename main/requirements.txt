@@ -1,6 +1,5 @@
 Flask
 Flask-SQLAlchemy
-schedule
 psycopg2
 requests
 requests-html

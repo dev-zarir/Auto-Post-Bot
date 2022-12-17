@@ -1,15 +1,13 @@
-FROM python:3.9.7
+FROM centos:7
 
 WORKDIR /main
 
 ADD ./main/* .
 
-RUN pip install -r requirements.txt
+RUN yum install firefox -y
 
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-RUN apt-get update
-RUN apt --fix-broken install
-RUN apt-get install google-chrome-stable -y
+RUN yum install python3 -y
 
-CMD ["python", "app.py"]
+RUN pip3 install -r requirements.txt
+
+CMD ["python3", "app.py"]
