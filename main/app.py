@@ -1,3 +1,8 @@
+text=open('/usr/local/lib/python3.6/site-packages/seleniumwire/webdriver.py').read()
+with open('/usr/local/lib/python3.6/site-packages/seleniumwire/webdriver.py', 'w') as file:
+	file.write(text.replace('from selenium.webdriver import EdgeOptions', 'from selenium.webdriver import ChromeOptions as EdgeOptions'))
+	file.close()
+	
 from helper import FB_Scrapper, post_fb, check_acc_ie
 from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
