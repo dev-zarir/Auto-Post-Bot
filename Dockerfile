@@ -8,7 +8,11 @@ RUN yum install firefox -y
 
 RUN yum install python3 -y
 
-RUN yum install libpq-dev -y
+RUN yum install postgresql -y
+
+RUN yum install postgresql-devel -y
+
+RUN yum install python-devel -y
 
 RUN pip3 install -r requirements.txt
 
