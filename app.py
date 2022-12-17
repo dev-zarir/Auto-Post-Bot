@@ -4,9 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=4.1
-# EDIT THIS ++++++++++++++++++++++++++++
-amount_of_post_each_page=1
+__version__=4.3
+
+amount_of_post_each_page=5
 
 page_ids=[
 	"100064620321323",
