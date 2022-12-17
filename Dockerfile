@@ -14,7 +14,7 @@ RUN yum install postgresql -y
 
 RUN yum install postgresql-devel -y
 
-RUN yum install python-devel -y
+RUN yum install python3-devel -y
 
 RUN pip3 install --upgrade pip
 
