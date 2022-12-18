@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=4.3
+__version__=4.4
 
 amount_of_post_each_page=5
 
@@ -14,6 +14,7 @@ page_ids=[
 	"100082319246979",
 	"100057273376837",
 	"100077463865033",
+	"100085399881892",
 	# "109057208214046",
 	# "110175880338880",
 	# "102260178961056",
