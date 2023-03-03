@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=4.8
+__version__=4.9
 
 amount_of_post_each_page=5
 
@@ -25,7 +25,7 @@ app=Flask(__name__)
 app.config['SECRET_KEY']='uwrguyvw4buteuf4gbyugt'
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://dev-zarir:v2_3zinZ_kiBkTCFTKsahKvUfPLzHfdP@db.bit.io:5432/dev-zarir/FB_Post_Bot'
 
-db=SQLAlchemy(app)
+db=SQLAlchemy(app, engine_options={"pool_recycle": 55})
 
 class Posts(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
