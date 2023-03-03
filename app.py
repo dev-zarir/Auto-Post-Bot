@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from time import sleep
 from threading import Thread
 
-__version__=4.6
+__version__=4.7
 
 amount_of_post_each_page=5
 
