@@ -23,7 +23,7 @@ page_ids=[
 
 app=Flask(__name__)
 app.config['SECRET_KEY']='uwrguyvw4buteuf4gbyugt'
-app.config['SQLALCHEMY_DATABASE_URI']='postgresql://otnkpdnm:e33_gRZAfzmXc73KHUG5BWeuEX19smt2@satao.db.elephantsql.com/otnkpdnm'
+app.config['SQLALCHEMY_DATABASE_URI']='postgresql://dev-zarir:v2_3zinZ_kiBkTCFTKsahKvUfPLzHfdP@db.bit.io:5432/dev-zarir/FB_Post_Bot'
 
 db=SQLAlchemy(app)
 
